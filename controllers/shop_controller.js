@@ -5,6 +5,11 @@ const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator/check');
 const { get } = require('mongoose');
 const Order = require('../models/order');
+const accountSid = 'AC6d4f842813ede63af57864d84183038d';
+const authToken = '29ab86204bb94274a8d56f215f83c88c';
+const client = require('twilio')(accountSid, authToken);
+
+
 
 exports.postCart = (req, res, next) => {
     console.log(req.body);
@@ -163,7 +168,29 @@ exports.postOrder = (req, res, next) => {
                     });
                     return order.save();
                 })
-                .then(orderResult => {
+                .then(async (orderResult) => {
+                    console.log(orderResult);
+                    var oderedNumber = orderResult.address.phonenumber;
+                    var oderPersonName = orderResult.address.name;
+                    console.log(orderResult.address.name);
+                    console.log(orderResult.address.phonenumber);
+                    // var products = [];
+                    // for (var i = 0; i < orderResult.products.length; i++) {
+                    //     Products.findById({ '_id': rderResult.products._id }).then(
+                    //         result => {
+                    //             products.add(result.productName);
+                    //         }
+                    //     )
+                    // }
+                    var finalMessage = oderPersonName + " of " + oderedNumber + " ordered";
+                    await client.messages
+                        .create({
+                            body: finalMessage,
+                            from: 'whatsapp:+14155238886',
+                            to: 'whatsapp:+917259511028'
+                        })
+                        .then(message => console.log(message.sid))
+                        .done();
                     return result.clearCart();
                 })
                 .then(() => {
