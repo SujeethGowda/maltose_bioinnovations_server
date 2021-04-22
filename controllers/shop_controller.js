@@ -11,6 +11,7 @@ const client = require('twilio')(accountSid, authToken);
 
 
 
+
 exports.postCart = (req, res, next) => {
     console.log(req.body);
     var productList = [];
@@ -132,6 +133,12 @@ exports.updateAddress = (req, res, next) => {
 }
 
 exports.postOrder = (req, res, next) => {
+    var paymentStatusInfo;
+    if (req.body.paymentId === null) {
+        paymentStatusInfo = false;
+    } else {
+        paymentStatusInfo = true;
+    }
     User.findById({ _id: req.body.userId }).then(
         result => {
             result.populate('cart.items.productId')
@@ -159,9 +166,10 @@ exports.postOrder = (req, res, next) => {
                             email: address.email,
                             phonenumber: address.phonenumber
                         },
+                        paymentId: req.body.paymentId,
                         products: products,
                         status: false,
-                        paymentStatus: false,
+                        paymentStatus: paymentStatusInfo,
                         orderRejected: false,
                         orderCancelled: false,
                         totalPrice: req.body.totalPrice,
@@ -228,4 +236,22 @@ exports.cancelOrder = async (req, res, next) => {
             })
         }
     )
+}
+
+exports.fieldVisitRequest = async (req, res, next) => {
+    var phno = parseInt(req.body.contactnumber);
+    const fieldvisitrequest = new FieldVist({
+        name: title,
+        phoneNumber:phno,
+        requestDescription: imgUrl,
+        zipcode: description,
+        address: productType,
+        lattitude: mrp,
+        longitude: false,
+    });
+    fieldvisitrequest.save().then(result => {
+        res.status(200).json({
+            message: 'Request Raised Successfully'
+        });
+    })
 }

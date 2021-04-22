@@ -14,8 +14,7 @@ exports.signup = (req, res, next) => {
     }
     const email = req.body.email;
     const password = req.body.password;
-    const firstName = req.body.firstName;
-    const lastName = req.body.lastName;
+    const fullName = req.body.fullName;
     const phoneNumber = req.body.phoneNumber;
     User.findOne({ email: email }).then(
         result => {
@@ -24,8 +23,7 @@ exports.signup = (req, res, next) => {
                     const user = new User({
                         email: email,
                         password: hashedPw,
-                        firstName: firstName,
-                        lastName: lastName,
+                        fullName: fullName,
                         phoneNumber: phoneNumber,
                     });
                     return user.save();
