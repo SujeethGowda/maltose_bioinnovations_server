@@ -22,4 +22,6 @@ router.get('/getorders/:userId', shopController.getAllOrders);
 
 router.post('/ordercancel', shopController.cancelOrder);
 
+router.get('/searchproduct',shopController.searchProduct);
+
 module.exports = router;

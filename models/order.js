@@ -6,7 +6,25 @@ const orderSchema = new Schema({
     products: [
         {
             product: { type: Object, required: true },
-            quantity: { type: Number, required: true },
+            quantity: [
+                {
+                    userQuantity: {
+                        type: Number, required: true,
+                    },
+                    id: {
+                        type: Schema.Types.ObjectId,
+                    },
+                    quantity: {
+                        type: Number,
+                    },
+                    price: {
+                        type: Number,
+                    },
+                    unit: {
+                        type: Number,
+                    },
+                },
+            ],
         }
     ],
     user: {

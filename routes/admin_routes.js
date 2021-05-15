@@ -6,10 +6,16 @@ const adminController = require('../controllers/admin_controller');
 
 const router = express.Router();
 
-// router.get('/', adminController.getLanding);
+router.post('/addproduct', adminController.addProduct);
 
-router.get('/addproduct', adminController.getAddProduct);
+router.get('/getorders', adminController.getOrders);
 
-router.post('/addproduct',adminController.addProduct);
+router.get('/getorderscompleted', adminController.getCompletedOrders);
+
+router.get('/getfieldvisitrequests', adminController.getFieldVisitRequests);
+
+router.get('/getfieldvisitrequestscompleted', adminController.getFieldVisitRequestsCompleted);
+
+router.post('/addunits', adminController.addUnits);
 
 module.exports = router;

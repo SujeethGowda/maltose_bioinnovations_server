@@ -25,10 +25,10 @@ const userSchema = new Schema({
     verified: {
         type: Boolean,
     },
-    latitude:{
+    latitude: {
         type: String,
     },
-    longitude:{
+    longitude: {
         type: String,
     },
     cart: {
@@ -39,8 +39,25 @@ const userSchema = new Schema({
                     ref: 'Product',
                     required: true
                 },
-                quantity: { type: Number, required: true }
-            }
+                quantity: [{
+                    userQuantity: {
+                        type: Number, required: true,
+                    },
+                    id: {
+                        type: Schema.Types.ObjectId,
+                    },
+                    quantity: {
+                        type: Number,
+                    },
+                    price: {
+                        type: Number,
+                    },
+                    unit: {
+                        type: Number,
+                    },
+                },
+                ],
+            },
         ],
     },
     orderAddress:
@@ -78,24 +95,46 @@ const userSchema = new Schema({
     },
 });
 
-userSchema.methods.addToCart = function (product, quantity) {
+userSchema.methods.addToCart = async function (product, quantity, units) {
     const cartProductIndex = this.cart.items.findIndex(cp => {
-        console.log(cp);
-        console.log(product.id);
         return cp.productId.toString() === product._id.toString();
     });
-    console.log(cartProductIndex);
     let newQuantity = quantity;
     const updatedCartItems = [...this.cart.items];
     if (cartProductIndex >= 0) {
         var q = parseInt(quantity);
-        newQuantity = this.cart.items[cartProductIndex].quantity + q;
-        updatedCartItems[cartProductIndex].quantity = newQuantity;
+        for (var i = 0; i < this.cart.items[cartProductIndex].quantity.length; i++) {
+            console.log(units._id == this.cart.items[cartProductIndex].quantity[i].id);
+            if (units._id == this.cart.items[cartProductIndex].quantity[i].id) {
+                newQuantity = this.cart.items[cartProductIndex].quantity[i].userQuantity + q;
+                updatedCartItems[cartProductIndex].quantity[i].userQuantity = newQuantity;
+            } else {
+                var addquant = {
+                    userQuantity: newQuantity,
+                    id: units._id,
+                    quantity: units.quantity,
+                    price: units.price,
+                    unit:units.unit
+                }
+            }
+        }
+        console.log(addquant);
+        await updatedCartItems[cartProductIndex].quantity.push(
+            addquant
+        );
+
     } else {
         updatedCartItems.push({
             productId: product._id,
-            quantity: newQuantity
-        });
+            quantity:
+                [{
+                    userQuantity: newQuantity,
+                    id: units._id,
+                    quantity: units.quantity,
+                    price: units.price,
+                    unit:units.unit
+                }]
+        })
     }
     const updatedCart = {
         items: updatedCartItems

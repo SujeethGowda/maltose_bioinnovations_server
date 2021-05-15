@@ -27,6 +27,10 @@ const fieldVisitSchema = new Schema({
         type: String,
         required: true
     },
+    visited:{
+        type: Boolean,
+        required: true
+    },
     lattitude: {
         type: Number,
         required: true

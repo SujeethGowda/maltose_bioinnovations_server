@@ -3,7 +3,6 @@ const User = require('../models/user');
 const FieldVist = require('../models/field_visit')
 
 exports.fieldVisitRequest = async (req, res, next) => {
-    console.log(req.body);
     var phno = parseInt(req.body.phoneNumber);
     var zipcode = parseInt(req.body.zipcode);
     const fieldvisitrequest = new FieldVist({
@@ -12,6 +11,7 @@ exports.fieldVisitRequest = async (req, res, next) => {
         phoneNumber: phno,
         requestDescription: req.body.requestDescription,
         zipcode: zipcode,
+        visited: 0,
         address: req.body.address,
         lattitude: req.body.lattitude,
         longitude: req.body.longitude,

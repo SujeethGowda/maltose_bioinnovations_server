@@ -9,18 +9,14 @@ const accountSid = 'AC6d4f842813ede63af57864d84183038d';
 const authToken = '29ab86204bb94274a8d56f215f83c88c';
 const client = require('twilio')(accountSid, authToken);
 
-
-
-
 exports.postCart = (req, res, next) => {
-    console.log(req.body);
     var productList = [];
     const quantity = req.body.quantity;
     const prodId = req.body.productId;
     User.findById({ _id: req.body.userId }).then(result => {
         Product.findById(req.body.productId)
             .then(product => {
-                return result.addToCart(product, quantity);
+                return result.addToCart(product, quantity,req.body.unit);
             })
             .then(async (result) => {
                 var productIdList = [];
@@ -151,6 +147,7 @@ exports.postOrder = (req, res, next) => {
                         }
                     }
                     const products = user.cart.items.map(i => {
+                        console.log(i);
                         return { quantity: i.quantity, product: { ...i.productId._doc } };
                     });
                     const order = new Order({
@@ -242,7 +239,7 @@ exports.fieldVisitRequest = async (req, res, next) => {
     var phno = parseInt(req.body.contactnumber);
     const fieldvisitrequest = new FieldVist({
         name: title,
-        phoneNumber:phno,
+        phoneNumber: phno,
         requestDescription: imgUrl,
         zipcode: description,
         address: productType,
@@ -254,4 +251,22 @@ exports.fieldVisitRequest = async (req, res, next) => {
             message: 'Request Raised Successfully'
         });
     })
+}
+
+exports.searchProduct = async (req, res, next) => {
+    const searchField = req.query.searchvalue;
+    Product.find({ productName: { $regex: searchField, $options: '$i' } }).then(data => {
+        if (data.length != null) {
+            res.status(200).json({
+                message: 'Products',
+                products: data
+            });
+        } else {
+            res.status(200).json({
+                message: 'No products found'
+            });
+        }
+
+    })
+
 }

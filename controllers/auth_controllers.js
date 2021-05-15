@@ -25,6 +25,8 @@ exports.signup = (req, res, next) => {
                         password: hashedPw,
                         fullName: fullName,
                         phoneNumber: phoneNumber,
+                        latitude:req.body.lat,
+                        longitude: req.body.long,
                     });
                     return user.save();
                 })
@@ -83,6 +85,7 @@ exports.login = (req, res, next) => {
                     userId: loadedUser._id.toString()
                 }, 'bestappintheworld', { expiresIn: '30d' }
                 );
+                // loadedUser.latitude = 
                 var decodedtoekn = jwt.decode(token);
                 console.log(decodedtoekn);
                 res.status(200).json({

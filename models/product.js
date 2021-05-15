@@ -30,6 +30,17 @@ const productSchema = new Schema({
         type: Number,
         required: true
     },
+    units: [{
+        quantity: {
+            type: Number,
+        },
+        price: {
+            type: Number,
+        },
+        unit: {
+            type: Number,
+        }
+    }],
     // userId: {
     //     type: Schema.Types.ObjectId,
     //     ref: 'User',
