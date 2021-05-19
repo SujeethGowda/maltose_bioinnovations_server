@@ -96,46 +96,56 @@ const userSchema = new Schema({
 });
 
 userSchema.methods.addToCart = async function (product, quantity, units) {
+    console.log(product);
+    console.log(quantity);
+    console.log(units);
     const cartProductIndex = this.cart.items.findIndex(cp => {
         return cp.productId.toString() === product._id.toString();
     });
-    let newQuantity = quantity;
+    var addNewQuantity = 0;
+    let newQuantity;
     const updatedCartItems = [...this.cart.items];
     if (cartProductIndex >= 0) {
         var q = parseInt(quantity);
         for (var i = 0; i < this.cart.items[cartProductIndex].quantity.length; i++) {
-            console.log(units._id == this.cart.items[cartProductIndex].quantity[i].id);
+            console.log(this.cart.items[cartProductIndex].quantity[i]);
             if (units._id == this.cart.items[cartProductIndex].quantity[i].id) {
                 newQuantity = this.cart.items[cartProductIndex].quantity[i].userQuantity + q;
                 updatedCartItems[cartProductIndex].quantity[i].userQuantity = newQuantity;
-            } else {
-                var addquant = {
-                    userQuantity: newQuantity,
+                console.log(updatedCartItems[cartProductIndex].quantity.length);
+                addNewQuantity = 1;
+            }
+        }
+        console.log('before');
+        console.log(updatedCartItems);
+        if (addNewQuantity != 1) {
+            await updatedCartItems[cartProductIndex].quantity.push(
+                {
+                    userQuantity: quantity,
                     id: units._id,
                     quantity: units.quantity,
                     price: units.price,
-                    unit:units.unit
+                    unit: units.unit
                 }
-            }
+            );
         }
-        console.log(addquant);
-        await updatedCartItems[cartProductIndex].quantity.push(
-            addquant
-        );
-
+        console.log('middle');
+        console.log(updatedCartItems);
     } else {
         updatedCartItems.push({
             productId: product._id,
             quantity:
                 [{
-                    userQuantity: newQuantity,
+                    userQuantity: quantity,
                     id: units._id,
                     quantity: units.quantity,
                     price: units.price,
-                    unit:units.unit
+                    unit: units.unit
                 }]
         })
     }
+    console.log('after');
+    console.log(updatedCartItems);
     const updatedCart = {
         items: updatedCartItems
     };
