@@ -27,6 +27,10 @@ const fieldVisitSchema = new Schema({
         type: String,
         required: true
     },
+    statusProcessing:{
+        type: Boolean,
+        required: true
+    },
     visited:{
         type: Boolean,
         required: true

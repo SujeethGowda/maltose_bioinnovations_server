@@ -13,6 +13,7 @@ const adminRoutes = require('./routes/admin_routes');
 const productRoutes = require('./routes/product_routes');
 const shopRoutes = require('./routes/shop_routes');
 const fieldRoutes = require('./routes/field_visit_route');
+const feedRoutes = require('./routes/feed_routes');
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -26,6 +27,7 @@ app.use('/product', productRoutes);
 app.use('/admin', adminRoutes);
 app.use('/shop', shopRoutes);
 app.use('/field', fieldRoutes);
+app.use('/feed', feedRoutes);
 
 app.use((error, req, res, next) => {
     console.log('App ' + error);
