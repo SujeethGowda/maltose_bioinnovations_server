@@ -61,12 +61,14 @@ exports.addProduct = async (req, res, next) => {
     const description = req.body.description;
     const productType = req.body.productType;
     const mrp = req.body.mrp;
+    const methodOfApplication = req.body.methodOfApplication;
     const imgUrl = req.body.imageUrl;
     const product = new Product({
         productName: title,
         productPrice: price,
         productImageUrl: imgUrl,
         productDescription: description,
+        productMethodOfApplication: methodOfApplication,
         productType: productType,
         productMrp: mrp,
         productOutOfStock: false,

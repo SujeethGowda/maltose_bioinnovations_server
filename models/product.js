@@ -10,6 +10,10 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
+    productMethodOfApplication: {
+        type: String,
+        required: true
+    },
     productOutOfStock: {
         type: Boolean,
         required: true

@@ -8,4 +8,6 @@ const router = express.Router();
 
 router.post('/createfieldvisit', fieldVisitController.fieldVisitRequest);
 
+router.post('/createfieldvisit', fieldVisitController.fieldVisitRequest);
+
 module.exports = router;
