@@ -93,12 +93,19 @@ const userSchema = new Schema({
             },
         },]
     },
+    wishlist: [
+        {
+            productId: {
+                type: Schema.Types.ObjectId,
+                ref: 'Product',
+                required: true
+            },
+        }
+    ]
+
 });
 
 userSchema.methods.addToCart = async function (product, quantity, units) {
-    console.log(product);
-    console.log(quantity);
-    console.log(units);
     const cartProductIndex = this.cart.items.findIndex(cp => {
         return cp.productId.toString() === product._id.toString();
     });
@@ -116,8 +123,6 @@ userSchema.methods.addToCart = async function (product, quantity, units) {
                 addNewQuantity = 1;
             }
         }
-        console.log('before');
-        console.log(updatedCartItems);
         if (addNewQuantity != 1) {
             await updatedCartItems[cartProductIndex].quantity.push(
                 {
@@ -129,8 +134,6 @@ userSchema.methods.addToCart = async function (product, quantity, units) {
                 }
             );
         }
-        console.log('middle');
-        console.log(updatedCartItems);
     } else {
         updatedCartItems.push({
             productId: product._id,
@@ -202,4 +205,36 @@ userSchema.methods.updateDeliveryAddress = function (name, address, state, zipco
     return item.save();
 };
 
-module.exports = mongoose.model('User', userSchema);
+userSchema.methods.addToWishlist = function (product) {
+    console.log("From something");
+    console.log(product);
+    console.log(this.wishlist);
+    const wishlistindex = this.wishlist.findIndex(cp => {
+        return cp.productId.toString() === product._id.toString();
+    });
+    console.log("wishlistindex");
+    console.log(wishlistindex);
+    if (wishlistindex >= 0) {
+        return wishlistItems;
+    }
+
+    console.log(wishlistindex);
+
+    const wishlistItems = [...this.wishlist];
+    wishlistItems.push({
+        productId: product._id,
+    })
+
+    this.wishlist = wishlistItems;
+    return this.save();
+}
+
+// userSchema.methods.removeFromWishlist = function (productId) {
+//     const updatedWishlistItems = this.whishlist.filter(item => {
+//         return item.productId.toString() !== productId.toString();
+//     });
+//     this.wishlist = updatedWishlistItems;
+//     return this.save();
+// };
+
+module.exports = User = mongoose.model('user', userSchema)

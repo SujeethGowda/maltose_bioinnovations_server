@@ -12,3 +12,14 @@ exports.getProducts = (req, res, next) => {
         }
     )
 }
+
+exports.getAllProducts = (req, res, next) => {
+    Product.find().then(
+        result => {
+            var sortedResult = result.sort();
+            res.status(201).json({
+                products: sortedResult
+            });
+        }
+    )
+}

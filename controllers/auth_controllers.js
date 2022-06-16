@@ -75,6 +75,7 @@ exports.login = (req, res, next) => {
         })
         .then(
             isEqual => {
+                console.log("Came");
                 if (!isEqual) {
                     const error = new Error('WRONG_PASSWORD');
                     error.statusCode = 401;

@@ -34,11 +34,11 @@ const transporter = nodemailer.createTransport(
 //         }
 //     });
 
-exports.postCart = (req, res, next) => {
+exports.postCart = async (req, res, next) => {
     var productList = [];
     const quantity = req.body.quantity;
     const prodId = req.body.productId;
-    User.findById({ _id: req.body.userId }).then(result => {
+    await User.findById({ _id: req.body.userId }).then(result => {
         Product.findById(req.body.productId)
             .then(product => {
                 return result.addToCart(product, quantity, req.body.unit);
@@ -68,10 +68,10 @@ exports.postCart = (req, res, next) => {
                 return next(error);
             });
     })
-
 };
 
 exports.getCart = (req, res, next) => {
+    console.log(req);
     var cartList = [];
     User.findById({ _id: req.params.userId }).then(async (result) => {
         var len = result.cart.items.length;
@@ -95,9 +95,9 @@ exports.getCart = (req, res, next) => {
     });
 }
 
-exports.deleteItemFromCart = (req, res, next) => {
+exports.deleteItemFromCart = async (req, res, next) => {
     const prodId = req.body.productId;
-    User.findById({ _id: req.body.userId }).then(
+    await User.findById({ _id: req.body.userId }).then(
         result => {
             result.removeFromCart(prodId).then(result => {
                 res.status(201).json({
@@ -208,7 +208,7 @@ exports.postOrder = (req, res, next) => {
                         <p>
                         ${orderResult.address.name} has ordered products</p>
                          `
-                      });
+                    });
                     return result.clearCart();
                 })
                 .then(() => {
@@ -236,6 +236,7 @@ exports.getAllOrders = (req, res, next) => {
 }
 
 exports.cancelOrder = async (req, res, next) => {
+    console.log(req.body.id);
     Order.findById({ _id: req.body.id }).then(
         async (result) => {
             result.orderCancelled = true;
@@ -282,4 +283,62 @@ exports.searchProduct = async (req, res, next) => {
 
     })
 
+}
+
+exports.getWishlistProducts = async (req, res, next) => {
+    console.log(req.params);
+    var wishList = [];
+    User.findById({ _id: req.params.userid }).then(async (result) => {
+        var len = result.wishlist.length;
+        var productListInCart = result.wishlist
+        for (var i = 0; i < len; i++) {
+            await Product.findById({ _id: result.wishlist[i].productId }).then(result => {
+                wishList.push(result);
+            });
+        }
+        console.log(wishList);
+        res.status(201).json({
+            wishlist: wishList,
+        });
+    }).catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+    });
+
+}
+
+exports.addToWishlist = async (req, res, next) => {
+    console.log(req.body);
+    var productList = [];
+    User.findById({ _id: req.body.userId }).then(result => {
+        Product.findById(req.body.productId)
+            .then(product => {
+                return result.addToWishlist(product);
+            })
+            .then(async (result) => {
+                res.status(201).json({
+                    wishlist: result,
+                    message: "ADDED TO WISHLIST"
+                });
+            })
+            .catch(err => {
+                const error = new Error(err);
+                error.httpStatusCode = 500;
+                return next(error);
+            });
+    })
+}
+
+exports.removeWishlistProduct = async (req, res, next) => {
+    const prodId = req.body.productId;
+    User.findById({ _id: req.body.userId }).then(
+        result => {
+            result.removeFromWishlist(prodId).then(result => {
+                res.status(201).json({
+                    message: "DELETED FROM WISHLIST"
+                });
+            })
+        }
+    )
 }

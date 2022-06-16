@@ -24,4 +24,12 @@ router.post('/ordercancel', shopController.cancelOrder);
 
 router.get('/searchproduct',shopController.searchProduct);
 
+router.get('/searchproduct',shopController.searchProduct);
+
+router.get('/getwishlist/:userid',shopController.getWishlistProducts);
+
+router.post('/addtowishlist',shopController.addToWishlist);
+
+router.post('/removewishlistproduct',shopController.removeWishlistProduct);
+
 module.exports = router;
