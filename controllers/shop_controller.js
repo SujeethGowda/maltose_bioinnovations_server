@@ -21,6 +21,14 @@ const transporter = nodemailer.createTransport(
     })
 );
 
+let mailTransporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'thinkcode11@gmail.com',
+        pass: 'xbhqazrooadjbipc'
+    }
+});
+
 // var transporter =
 //     nodemailer.createTransport({
 //         service: 'gmail',
@@ -172,9 +180,9 @@ exports.postOrder = (req, res, next) => {
                         }
                     }
                     const products = user.cart.items.map(i => {
-                        console.log(i);
                         return { quantity: i.quantity, product: { ...i.productId._doc } };
                     });
+                    console.log(products);
                     const order = new Order({
                         user: {
                             email: result.email,
@@ -199,14 +207,62 @@ exports.postOrder = (req, res, next) => {
                     return order.save();
                 })
                 .then(async (orderResult) => {
-                    transporter.sendMail({
+                    var productList = [];
+                    var quantity;
+                    var price;
+                    
+                    let mailDetails = {
+                        from: 'thinkcode11@gmail.com',
+                        to: 'sujeeth9171@gmail.com',
+                        subject: 'Order placed',
+                        html: `
+                        <h1> New order has been placed </h1>
+                        <p>${orderResult.address.name} has ordered products</p>
+                        <p> ${orderResult.products[0].product.productName}</p>
+                        <p> ${orderResult.products[0].quantity[0].quantity}</p>
+                        <table>
+                        <tr>
+                            <th>Products</th>
+                            <th>Quanity</th>
+                            <th>Price</th>
+                        </tr>
+                        <tr>
+
+        `
+                    };
+                    // <td>${orderResult[0].product.quantity[0].quantity}</td>
+                    // <td>${orderResult[0].product.quantity[0].price}</td>
+                    // <table>
+                    //     <tr>
+                    //         <th>Products</th>
+                    //         <th>Quanity</th>
+                    //         <th>Price</th>
+                    //     </tr>
+                    //     <tr>
+                    //         <td>${orderResult[0].product.productName}</td>
+                    //         <td>${orderResult[0].product.quantity[0].quantity}</td>
+                    //         <td>${orderResult[0].product.quantity[0].price}</td>
+                    //     </tr>
+                    // </table>
+
+                    await mailTransporter.sendMail(mailDetails, function (err, data) {
+                        console.log("Came hre");
+                        if (err) {
+                            console.log(err);
+                            console.log('Error Occurs');
+                        } else {
+                            console.log('Email sent successfully');
+                        }
+                    });
+
+                    await transporter.sendMail({
                         to: 'sujeeth9171@gmail.com',
                         from: 'shop@node-complete.com',
                         subject: 'New Order',
                         html: `
-                        <h1>There is a new order </h1>
-                        <p>
-                        ${orderResult.address.name} has ordered products</p>
+        < h1 > There is a new order </h1 >
+    <p>
+        ${orderResult.address.name} has ordered products</p>
                          `
                     });
                     return result.clearCart();
