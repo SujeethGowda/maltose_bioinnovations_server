@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
-    products: [
+    orderedProducts: [
         {
             product: { type: Object, required: true },
             quantity: [
@@ -21,7 +21,7 @@ const orderSchema = new Schema({
                         type: Number,
                     },
                     unit: {
-                        type: Number,
+                        type: String,
                     },
                 },
             ],

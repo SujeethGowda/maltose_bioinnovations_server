@@ -53,7 +53,7 @@ const userSchema = new Schema({
                         type: Number,
                     },
                     unit: {
-                        type: Number,
+                        type: String,
                     },
                 },
                 ],
@@ -115,11 +115,9 @@ userSchema.methods.addToCart = async function (product, quantity, units) {
     if (cartProductIndex >= 0) {
         var q = parseInt(quantity);
         for (var i = 0; i < this.cart.items[cartProductIndex].quantity.length; i++) {
-            console.log(this.cart.items[cartProductIndex].quantity[i]);
             if (units._id == this.cart.items[cartProductIndex].quantity[i].id) {
                 newQuantity = this.cart.items[cartProductIndex].quantity[i].userQuantity + q;
                 updatedCartItems[cartProductIndex].quantity[i].userQuantity = newQuantity;
-                console.log(updatedCartItems[cartProductIndex].quantity.length);
                 addNewQuantity = 1;
             }
         }
@@ -147,8 +145,6 @@ userSchema.methods.addToCart = async function (product, quantity, units) {
                 }]
         })
     }
-    console.log('after');
-    console.log(updatedCartItems);
     const updatedCart = {
         items: updatedCartItems
     };
@@ -193,7 +189,6 @@ userSchema.methods.updateDeliveryAddress = function (name, address, state, zipco
             return item;
         }
     });
-    console.log(updatedAddressList);
     var item = updatedAddressList[0];
     item.name = name;
     item.address = address;
@@ -206,20 +201,12 @@ userSchema.methods.updateDeliveryAddress = function (name, address, state, zipco
 };
 
 userSchema.methods.addToWishlist = function (product) {
-    console.log("From something");
-    console.log(product);
-    console.log(this.wishlist);
     const wishlistindex = this.wishlist.findIndex(cp => {
         return cp.productId.toString() === product._id.toString();
     });
-    console.log("wishlistindex");
-    console.log(wishlistindex);
     if (wishlistindex >= 0) {
         return wishlistItems;
     }
-
-    console.log(wishlistindex);
-
     const wishlistItems = [...this.wishlist];
     wishlistItems.push({
         productId: product._id,
@@ -229,12 +216,12 @@ userSchema.methods.addToWishlist = function (product) {
     return this.save();
 }
 
-// userSchema.methods.removeFromWishlist = function (productId) {
-//     const updatedWishlistItems = this.whishlist.filter(item => {
-//         return item.productId.toString() !== productId.toString();
-//     });
-//     this.wishlist = updatedWishlistItems;
-//     return this.save();
-// };
+userSchema.methods.removeFromWishlist = function (productId) {
+    const updatedWishlistItems = this.wishlist.filter(item => {
+        return item.productId.toString() !== productId.toString();
+    });
+    this.wishlist = updatedWishlistItems;
+    return this.save();
+};
 
-module.exports = User = mongoose.model('user', userSchema)
+module.exports = User = mongoose.model('user', userSchema);

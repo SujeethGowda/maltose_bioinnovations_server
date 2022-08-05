@@ -19,8 +19,6 @@ const storage = multer.diskStorage({
 });
 
 exports.addProduct = async (req, res, next) => {
-    console.log(req.body);
-
     // let upload = multer({ storage: storage }).array('product', 10);
     // await upload(req, res, function (err) {
     //     console.log(req.files);
@@ -74,10 +72,23 @@ exports.addProduct = async (req, res, next) => {
         productOutOfStock: false,
     });
     product.save().then(result => {
-        res.status(200).json({
-            message: 'Product Added Successfully'
-        });
+        Product.find().then(result => res.status(200).json({
+            message: 'Product Added Successfully',
+            products: result
+        }));
+
     })
+}
+
+exports.getAllProducts = (req, res, next) => {
+    Product.find().then(
+        result => {
+            var sortedResult = result.sort();
+            res.status(201).json({
+                products: sortedResult
+            });
+        }
+    )
 }
 
 exports.getOrders = async (req, res, next) => {
@@ -117,12 +128,56 @@ exports.getFieldVisitRequestsCompleted = async (req, res, next) => {
 exports.addUnits = async (req, res, next) => {
     const quantity = parseInt(req.body.quantity);
     const price = parseInt(req.body.price);
-    const unit = parseInt(req.body.unit);
+    const units = req.body.unit;
     Product.findById({ _id: req.body.id }).then(result => {
-        console.log(result);
-        result.units.push({ quantity: quantity, price: price, unit: unit });
+        if (req.body.unitId == "") {
+            result.units.push({ quantity: quantity, price: price, unit: units });
+            result.save().then(result => {
+                res.status(201).json({
+                    product: result,
+                    MESSAGE: "Added Succesfully",
+                });
+            }).catch(err => {
+                if (!err.statusCode) {
+                    err.statusCode = 500;
+                }
+                next(err);
+            });
+        } else {
+            var unit = result.units;
+            for (var i = 0; i < unit.length; i++) {
+                if (unit[i]._id == req.body.unitId) {
+                    unit[i].quantity = quantity;
+                    unit[i].price = price;
+                    unit[i].unit = units;
+                }
+            }
+            result.units = unit;
+            result.save().then(result => {
+                res.status(201).json({
+                    product: result,
+                    MESSAGE: "Added Succesfully",
+                });
+            })
+                .catch(err => {
+                    if (!err.statusCode) {
+                        err.statusCode = 500;
+                    }
+                    next(err);
+                });
+        }
+    });
+}
+
+exports.deleteUnit = async (req, res, next) => {
+    Product.findById({ _id: req.body.id }).then(result => {
+        const updatedUnitItems = result.units.filter(item => {
+            return item._id.toString() !== req.body.unitId.toString();
+        });
+        result.units = updatedUnitItems;
         result.save().then(result => {
             res.status(201).json({
+                product: result,
                 MESSAGE: "Added Succesfully",
             });
         })
@@ -132,6 +187,39 @@ exports.addUnits = async (req, res, next) => {
                 }
                 next(err);
             });
+    });
+}
 
+exports.updateProduct = async (req, res, next) => {
+    console.log(req.body);
+    Product.findById({ _id: req.body.id }).then(result => {
+        console.log(result);
+        result.productName = req.body.productName;
+        result.productDescription = req.body.productDescription;
+        result.productImageUrl = req.body.imageUrl;
+        result.productMethodOfApplication = req.body.methodOfApplication;
+        result.save().then(result => {
+            Product.find().then(
+                result => {
+                    var sortedResult = result.sort();
+                    res.status(201).json({
+                        products: sortedResult
+                    });
+                }
+            )
+        })
+    });
+}
+
+exports.deleteProduct = async (req, res, body) => {
+    Product.deleteOne({ _id: req.params.productId }).then(result => {
+        Product.find().then(
+            result => {
+                var sortedResult = result.sort();
+                res.status(201).json({
+                    products: sortedResult
+                });
+            }
+        )
     });
 }

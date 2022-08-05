@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 exports.signup = (req, res, next) => {
-    console.log(req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         const error = new Error('Validation Failed....');
@@ -75,7 +74,6 @@ exports.login = (req, res, next) => {
         })
         .then(
             isEqual => {
-                console.log("Came");
                 if (!isEqual) {
                     const error = new Error('WRONG_PASSWORD');
                     error.statusCode = 401;
@@ -88,7 +86,6 @@ exports.login = (req, res, next) => {
                 );
                 // loadedUser.latitude = 
                 var decodedtoekn = jwt.decode(token);
-                console.log(decodedtoekn);
                 res.status(200).json({
                     token: token,
                     userId: loadedUser

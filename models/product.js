@@ -20,7 +20,7 @@ const productSchema = new Schema({
     },
     productType: {
         type: String,
-        required: true
+        // required: true
     },
     productImageUrl: {
         type: String,
@@ -28,11 +28,11 @@ const productSchema = new Schema({
     },
     productPrice: {
         type: Number,
-        required: true
+        // required: true
     },
     productMrp: {
         type: Number,
-        required: true
+        // required: true
     },
     units: [{
         quantity: {
@@ -42,7 +42,7 @@ const productSchema = new Schema({
             type: Number,
         },
         unit: {
-            type: Number,
+            type: String,
         }
     }],
     // userId: {

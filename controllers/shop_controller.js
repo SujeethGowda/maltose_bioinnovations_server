@@ -79,7 +79,6 @@ exports.postCart = async (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-    console.log(req);
     var cartList = [];
     User.findById({ _id: req.params.userId }).then(async (result) => {
         var len = result.cart.items.length;
@@ -93,6 +92,7 @@ exports.getCart = (req, res, next) => {
                 cartList.push(item);
             });
         }
+        console.log(cartList);
         res.status(201).json({
             cart: cartList,
         });
@@ -105,10 +105,24 @@ exports.getCart = (req, res, next) => {
 
 exports.deleteItemFromCart = async (req, res, next) => {
     const prodId = req.body.productId;
+    var cartList = [];
     await User.findById({ _id: req.body.userId }).then(
         result => {
-            result.removeFromCart(prodId).then(result => {
+            result.removeFromCart(prodId).then(async result => {
+                console.log(result);
+                var len = result.cart.items.length;
+                var productListInCart = result.cart.items
+                for (var i = 0; i < len; i++) {
+                    await Product.findById({ _id: result.cart.items[i].productId }).then(result => {
+                        var item = {
+                            productDetails: result,
+                            quantity: productListInCart[i].quantity
+                        }
+                        cartList.push(item);
+                    });
+                }
                 res.status(201).json({
+                    cart: cartList,
                     message: "DELETED FROM CART"
                 });
             })
@@ -180,9 +194,9 @@ exports.postOrder = (req, res, next) => {
                         }
                     }
                     const products = user.cart.items.map(i => {
+                        console.log(i);
                         return { quantity: i.quantity, product: { ...i.productId._doc } };
                     });
-                    console.log(products);
                     const order = new Order({
                         user: {
                             email: result.email,
@@ -197,20 +211,21 @@ exports.postOrder = (req, res, next) => {
                             phonenumber: address.phonenumber
                         },
                         paymentId: req.body.paymentId,
-                        products: products,
+                        orderedProducts: products,
                         status: false,
                         paymentStatus: paymentStatusInfo,
                         orderRejected: false,
                         orderCancelled: false,
                         totalPrice: req.body.totalPrice,
                     });
+
                     return order.save();
                 })
                 .then(async (orderResult) => {
                     var productList = [];
                     var quantity;
                     var price;
-                    
+
                     let mailDetails = {
                         from: 'thinkcode11@gmail.com',
                         to: 'sujeeth9171@gmail.com',
@@ -218,8 +233,7 @@ exports.postOrder = (req, res, next) => {
                         html: `
                         <h1> New order has been placed </h1>
                         <p>${orderResult.address.name} has ordered products</p>
-                        <p> ${orderResult.products[0].product.productName}</p>
-                        <p> ${orderResult.products[0].quantity[0].quantity}</p>
+
                         <table>
                         <tr>
                             <th>Products</th>
@@ -230,6 +244,8 @@ exports.postOrder = (req, res, next) => {
 
         `
                     };
+                    // <p> ${orderResult.products[0].pr.productName}</p>
+                    // <p> ${orderResult.products[0].quantity[0].quantity}</p>
                     // <td>${orderResult[0].product.quantity[0].quantity}</td>
                     // <td>${orderResult[0].product.quantity[0].price}</td>
                     // <table>
@@ -246,12 +262,8 @@ exports.postOrder = (req, res, next) => {
                     // </table>
 
                     await mailTransporter.sendMail(mailDetails, function (err, data) {
-                        console.log("Came hre");
                         if (err) {
-                            console.log(err);
-                            console.log('Error Occurs');
                         } else {
-                            console.log('Email sent successfully');
                         }
                     });
 
@@ -292,7 +304,6 @@ exports.getAllOrders = (req, res, next) => {
 }
 
 exports.cancelOrder = async (req, res, next) => {
-    console.log(req.body.id);
     Order.findById({ _id: req.body.id }).then(
         async (result) => {
             result.orderCancelled = true;
@@ -342,7 +353,6 @@ exports.searchProduct = async (req, res, next) => {
 }
 
 exports.getWishlistProducts = async (req, res, next) => {
-    console.log(req.params);
     var wishList = [];
     User.findById({ _id: req.params.userid }).then(async (result) => {
         var len = result.wishlist.length;
@@ -352,7 +362,6 @@ exports.getWishlistProducts = async (req, res, next) => {
                 wishList.push(result);
             });
         }
-        console.log(wishList);
         res.status(201).json({
             wishlist: wishList,
         });
@@ -365,7 +374,6 @@ exports.getWishlistProducts = async (req, res, next) => {
 }
 
 exports.addToWishlist = async (req, res, next) => {
-    console.log(req.body);
     var productList = [];
     User.findById({ _id: req.body.userId }).then(result => {
         Product.findById(req.body.productId)
@@ -391,8 +399,22 @@ exports.removeWishlistProduct = async (req, res, next) => {
     User.findById({ _id: req.body.userId }).then(
         result => {
             result.removeFromWishlist(prodId).then(result => {
-                res.status(201).json({
-                    message: "DELETED FROM WISHLIST"
+                var wishList = [];
+                User.findById({ _id: req.body.userId }).then(async (result) => {
+                    var len = result.wishlist.length;
+                    var productListInCart = result.wishlist
+                    for (var i = 0; i < len; i++) {
+                        await Product.findById({ _id: result.wishlist[i].productId }).then(result => {
+                            wishList.push(result);
+                        });
+                    }
+                    res.status(201).json({
+                        wishlist: wishList,
+                    });
+                }).catch(err => {
+                    const error = new Error(err);
+                    error.httpStatusCode = 500;
+                    return next(error);
                 });
             })
         }

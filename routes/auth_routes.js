@@ -12,10 +12,8 @@ router.post('/signup',
     .isEmail()
     .withMessage('INVALID_EMAIL')
     .custom((value,{ req })=>{
-        console.log(value);
         return User.findOne({email: value}).then(userDoc=>{
             if(userDoc){
-                console.log(userDoc + 'im no heres');
                 return Promise.reject('EMAIL_EXISTS');
             }
         });
